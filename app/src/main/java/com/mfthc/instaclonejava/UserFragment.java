@@ -14,6 +14,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mfthc.instaclonejava.databinding.FragmentUserBinding;
@@ -53,7 +57,7 @@ public class UserFragment extends Fragment {
         binding.signInButton.setOnClickListener(v -> SignIn(view));
 
         FirebaseUser user = auth.getCurrentUser();
-        if(user!=null){
+        if (user != null) {
             NavDirections action = UserFragmentDirections.actionUserFragmentToFeedFragment();
             Navigation.findNavController(requireView()).navigate(action);
         }
@@ -63,21 +67,33 @@ public class UserFragment extends Fragment {
 
         String email = binding.emailText.getText().toString();
         String password = binding.passwordText.getText().toString();
-        if (!email.isEmpty()&&!password.isEmpty()) {
+        if (!email.isEmpty() && !password.isEmpty()) {
             auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     NavDirections action = UserFragmentDirections.actionUserFragmentToFeedFragment();
                     Navigation.findNavController(requireView()).navigate(action);
                 }
             }).addOnFailureListener(e -> {
-                Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             });
         }
 
 
     }
-    public void SignIn(View view){
 
+    public void SignIn(View view) {
+        String email = binding.emailText.getText().toString();
+        String password = binding.passwordText.getText().toString();
+        if (!email.isEmpty() && !password.isEmpty()) {
+            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    NavDirections action = UserFragmentDirections.actionUserFragmentToFeedFragment();
+                    Navigation.findNavController(requireView()).navigate(action);
+                }
+            }).addOnFailureListener(e -> {
+                Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            });
+        }
     }
 
     @Override

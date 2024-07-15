@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.mfthc.instaclonejava.databinding.FragmentFeedBinding;
 
 
@@ -22,6 +23,7 @@ public class FeedFragment extends Fragment implements PopupMenu.OnMenuItemClickL
 
     FragmentFeedBinding binding;
     PopupMenu menu;
+    FirebaseAuth auth;
 
 
     public FeedFragment() {
@@ -32,6 +34,7 @@ public class FeedFragment extends Fragment implements PopupMenu.OnMenuItemClickL
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        auth = FirebaseAuth.getInstance();
 
     }
 
@@ -66,6 +69,7 @@ public class FeedFragment extends Fragment implements PopupMenu.OnMenuItemClickL
             Navigation.findNavController(requireView()).navigate(action);
         } else {
             //Log-out
+            auth.signOut();
             NavDirections action = FeedFragmentDirections.actionFeedFragmentToUserFragment();
             Navigation.findNavController(requireView()).navigate(action);
         }
