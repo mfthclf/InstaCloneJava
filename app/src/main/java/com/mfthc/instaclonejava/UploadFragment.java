@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -26,8 +28,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.google.protobuf.Any;
 import com.mfthc.instaclonejava.databinding.FragmentUploadBinding;
+
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.UUID;
 
 
 public class UploadFragment extends Fragment {
@@ -37,6 +55,9 @@ public class UploadFragment extends Fragment {
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private Bitmap selectedBitmap;
     private Uri selectedUri;
+    private FirebaseStorage storage;
+    private FirebaseFirestore db;
+    private FirebaseAuth auth;
 
     public UploadFragment() {
         // Required empty public constructor
@@ -60,7 +81,24 @@ public class UploadFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        storage = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
         binding.postImageView.setOnClickListener(v -> SelectImage(view));
+        binding.uploadButton.setOnClickListener(v -> Upload(view));
+    }
+
+    public void Upload(View view) {
+
+        UUID id = UUID.randomUUID();
+        String imagePath = id + ".jpg";
+        StorageReference reference = storage.getReference().child("images").child(imagePath);
+
+        reference.putFile(selectedUri).addOnSuccessListener(taskSnapshot -> {
+            reference.getDownloadUrl().addOnSuccessListener(uri -> {
+                String downloadUrl = uri.toString();
+            });
+        }).addOnFailureListener(e -> Toast.makeText(requireContext(),e.getLocalizedMessage(),Toast.LENGTH_LONG).show());
     }
 
     public void SelectImage(View view) {
