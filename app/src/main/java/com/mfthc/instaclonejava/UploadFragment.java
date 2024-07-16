@@ -96,9 +96,28 @@ public class UploadFragment extends Fragment {
 
         reference.putFile(selectedUri).addOnSuccessListener(taskSnapshot -> {
             reference.getDownloadUrl().addOnSuccessListener(uri -> {
-                String downloadUrl = uri.toString();
+
+                if (auth.getCurrentUser() != null) {
+
+                    String downloadUrl = uri.toString();
+                    HashMap<String, Object> postMap = new HashMap<>();
+
+                    postMap.put("downloadUrl", downloadUrl);
+                    postMap.put("email", auth.getCurrentUser().getEmail());
+                    postMap.put("comment", binding.commentText.getText().toString());
+                    postMap.put("date", Timestamp.now());
+
+                    db.collection("Posts").add(postMap).addOnSuccessListener(documentReference -> {
+                        NavDirections action = UploadFragmentDirections.actionUploadFragmentToFeedFragment();
+                        Navigation.findNavController(requireView()).navigate(action);
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                    });
+
+                }
+
             });
-        }).addOnFailureListener(e -> Toast.makeText(requireContext(),e.getLocalizedMessage(),Toast.LENGTH_LONG).show());
+        }).addOnFailureListener(e -> Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show());
     }
 
     public void SelectImage(View view) {
